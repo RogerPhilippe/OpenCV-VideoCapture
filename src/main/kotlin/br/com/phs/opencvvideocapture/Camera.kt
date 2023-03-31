@@ -3,21 +3,25 @@ package br.com.phs.opencvvideocapture
 import org.opencv.core.Core
 import org.opencv.core.Mat
 import org.opencv.core.MatOfByte
+import org.opencv.core.Size
 import org.opencv.imgcodecs.Imgcodecs
+import org.opencv.imgproc.Imgproc
 import org.opencv.videoio.VideoCapture
 import java.awt.Dimension
+import java.awt.Image
 import java.awt.event.WindowAdapter
 import java.awt.event.WindowEvent
 import java.text.SimpleDateFormat
 import java.util.*
-import javax.swing.ImageIcon
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JLabel
-import javax.swing.JOptionPane
+import javax.swing.*
 import kotlin.system.exitProcess
 
 class Camera: JFrame() {
+
+    companion object {
+        private const val WIDTH = 655
+        private const val HEIGHT = 580
+    }
 
     // Camera Screen
     private lateinit var cameraScreen: JLabel
@@ -43,17 +47,18 @@ class Camera: JFrame() {
         layout = null
 
         cameraScreen = JLabel()
-        cameraScreen.setBounds(0, 0, 640, 480)
+        cameraScreen.setBounds(0, 0, WIDTH, HEIGHT-100)
         add(cameraScreen)
 
         btnCapture = JButton("Capturar")
-        btnCapture.setBounds(300, 490, 100, 40)
+        btnCapture.setBounds((WIDTH/2)-60, 490, 100, 40)
         add(btnCapture)
 
 
-        size = Dimension(640, 580)
+        size = Dimension(WIDTH, HEIGHT)
         setLocationRelativeTo(null)
         defaultCloseOperation = DISPOSE_ON_CLOSE
+        isResizable = false
         isVisible = true
 
     }
@@ -74,20 +79,34 @@ class Camera: JFrame() {
     }
 
     private fun createCamera() {
-        capture = VideoCapture(0)
+        //capture = VideoCapture(0) // WebCam
+        capture = VideoCapture("rtsp://admin:Um9nZXI=@192.168.15.33:554/mainStream") // Video Streaming
         image = Mat()
-        var imageData = byteArrayOf()
+        var imageData: ByteArray
+
+        if (!capture.isOpened) {
+            running = false
+            println("Video flow not opened!")
+            JOptionPane.showMessageDialog(this, "Fluxo de vídeo não aberto!")
+        }
 
         while (running) {
+
             // read image to matrix
             capture.read(image)
+
+            val newFrame = Mat()
+            Imgproc.resize(image, newFrame, Size(640.0, 480.0))
+
             // Matrix to byte
             val buf = MatOfByte()
-            Imgcodecs.imencode(".jpg", image, buf)
+            Imgcodecs.imencode(".jpg", newFrame, buf)
 
             imageData = buf.toArray()
             icon = ImageIcon(imageData)
             cameraScreen.icon = icon
+            //val newImage = icon.image.getScaledInstance(640, 480, Image.SCALE_SMOOTH)
+            //cameraScreen.icon = ImageIcon(newImage)
 
             if (mustCapture) {
                 mustCapture = false
@@ -98,6 +117,7 @@ class Camera: JFrame() {
 
         }
 
+        capture.release()
         this.exit()
 
     }
