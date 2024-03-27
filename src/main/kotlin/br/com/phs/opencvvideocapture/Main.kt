@@ -8,7 +8,7 @@ fun main(args: Array<String>) {
     println("OpenCV version: ${Core.VERSION}")
 
     EventQueue.invokeLater {
-        Camera().load()
+        Camera()
     }
 
 

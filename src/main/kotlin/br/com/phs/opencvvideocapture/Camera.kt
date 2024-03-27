@@ -19,7 +19,7 @@ import kotlin.system.exitProcess
 class Camera: JFrame() {
 
     companion object {
-        private const val WIDTH = 655
+        private const val WIDTH = 640
         private const val HEIGHT = 580
     }
 
@@ -32,7 +32,7 @@ class Camera: JFrame() {
     private var mustCapture = false
     private var running = true
 
-    fun load() {
+    init {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME)
         println("Load success!")
         this.setup()
@@ -79,8 +79,8 @@ class Camera: JFrame() {
     }
 
     private fun createCamera() {
-        //capture = VideoCapture(0) // WebCam
-        capture = VideoCapture("rtsp://admin:Um9nZXI=@192.168.15.33:554/mainStream") // Video Streaming
+        capture = VideoCapture(0) // WebCam
+        //capture = VideoCapture("rtsp://admin:Um9nZXI=@192.168.15.33:554/mainStream") // Video Streaming
         image = Mat()
         var imageData: ByteArray
 
